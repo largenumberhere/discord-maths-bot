@@ -1,6 +1,6 @@
 # What does it do?
 It's a simple discord bot server that replies to a `/maths` command like so: 
-It is basically a wrapper for ![the shunting api package](https://crates.io/crates/shunting).
+It is basically a wrapper for [the shunting api package](https://crates.io/crates/shunting).
 </br>
 ![example of command usage (/maths 1+2+3)](command1.png)
 ![example of command respone (6)](command1b.png)
