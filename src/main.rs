@@ -1,4 +1,4 @@
-
+use std::fmt::Debug;
 
 use serenity::{
     Client, prelude::{
@@ -83,13 +83,33 @@ impl EventHandler for Handler{
     }
 }
 
+enum MathBotError{
+    ClientError(serenity::Error),
+    FileError(std::io::Error)
+}
+
+impl Debug for MathBotError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MathBotError::ClientError(e)=>{
+                f.write_fmt(format_args!("client failed to start! {}",e))
+            },
+            MathBotError::FileError(e)=>{
+                f.write_fmt(format_args!("failed to access discord.txt. {}",e))
+            }
+        }
+    }
+}
+
 #[tokio::main]
-async fn main() -> Result<(),serenity::Error>{
-    let token = load_discord_token().expect("could not get token from discord.txt");
+async fn main() -> Result<(), MathBotError>{
+    let token = load_discord_token()
+        .map_err(MathBotError::FileError)?;
+
     let mut client = Client::builder(token, GatewayIntents::empty())
         .event_handler(Handler)
         .await
-        ?;
+        .map_err(MathBotError::ClientError)?;
 
     if let Err(message) = client.start().await{
         println!("client error: {:?}",message);
@@ -110,10 +130,17 @@ struct MathsParseError{}
 
 
 fn maths_command(options: &[CommandDataOption] ) -> String{
-    let option0 = options.get(0)
-        .expect("maths command did not give a formula").
-        resolved.as_ref()
-        .expect("option0 did not convert to ref");
+    let option0 = options.get(0);
+
+    let option0 = match option0 {
+        None =>{return "Error: no formula was provided!".to_string();},
+        Some(v)=> v 
+    };
+
+    let option0 = match option0.resolved.as_ref() {
+        Some(v) => v,
+        None => {return "Error: failed to dereference message data. Time to call support :'(".to_string();}
+    };
 
     if let CommandDataOptionValue::String(value) = option0{
         let compute_expression =  ||{
@@ -126,7 +153,7 @@ fn maths_command(options: &[CommandDataOption] ) -> String{
             Ok(v) =>{
                 v.to_string()
             },
-            Err(e) =>{format!("failed to convert because: {}",e)}
+            Err(e) =>{format!("Failed to convert because: '{}'.",e)}
         };
 
         string_reply

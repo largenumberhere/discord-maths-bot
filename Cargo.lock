@@ -418,6 +418,7 @@ dependencies = [
 name = "koder-jam-9-05-23"
 version = "0.1.0"
 dependencies = [
+ "no-panic",
  "serenity",
  "shunting",
  "tokio",
@@ -501,6 +502,17 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "no-panic"
+version = "0.1.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cf40c9ff16bd990d6befd701532d431a03f4cf7e465ac45c92c567ec0a40ebb"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.15",
 ]
 
 [[package]]
